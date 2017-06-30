@@ -8,10 +8,10 @@ import csv
 
 # Learn about API authentication here: https://plot.ly/python/getting-started
 # API setup https://plot.ly/settings/api
-py.tools.set_credentials_file(username='kbman', api_key='99cUPeQHHIoTSGZ97oRb')
+py.tools.set_credentials_file(username='Username', api_key='APIKEY')
 
 # Enter your Z-number here
-z_num = 23313497
+z_num = 12345678
 z_num_list = [int(i) for i in str(z_num)]
 
 mean = stat.mean(z_num_list)
