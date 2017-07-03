@@ -8,12 +8,6 @@ import csv
 
 
 def get_probability(rand_nums, range_list):
-    '''
-    Gets probability of a value occurring given a set of random values and ranges
-    :param rand_nums: List of random numbers
-    :param range_list: List of different values of ranges
-    :return: List of probabilities for a given range
-    '''
     probabilities = []
     for index, val in enumerate(range_list[:len(range_list) - 1]):
         # List of probabilities for each range by summing total count in range and dividing by total count
@@ -34,28 +28,52 @@ n = stat.median(z_num_list)
 M = sum(z_num_list)
 sigma = math.sqrt(M)
 mu = mean
-num_bins = 18
+num_bins = 25
 
-ranges = [mu + value*sigma for value in range(-4, 5)]
+g_ranges = [mu + value*sigma for value in range(-4, 5)]
 
 # To gather values
-g_rand = np.random.normal(mu, sigma, 5000)
+g_rand = np.random.normal(mu, sigma, size=5000)
 
-fig = plt.figure()
-n, bins, patches = plt.hist(g_rand, num_bins, normed=1, facecolor='red', alpha=0.6)
+gauss_fig = plt.figure()
+g_array, g_bins, g_patches = plt.hist(g_rand, num_bins, normed=1, facecolor='red', alpha=0.6)
 # best fit line
-y = mlab.normpdf(bins, mu, sigma)
-plt.plot(bins, y, 'r--')
+y = mlab.normpdf(g_bins, mu, sigma)
+plt.plot(g_bins, y, 'r--')
+plt.title('Gaussian Distribution')
 plt.xlabel('Probability')
 plt.ylabel('Value')
 
+g_plot_url = py.plotly.plot_mpl(gauss_fig, filename='histogram_gauss_1')
+plt.clf()
 
-with open('gauss_values.csv', 'w', newline='') as file:
+triangle_fig = plt.figure()
+b = 2 * n
+# Create triangular range
+t_ranges = [(i * b)/4 for i in range(9)]
+# Calculate standard deviation
+t_sd = math.sqrt((b**2 + (2*b)**2 - b*(2*b))/18)
+
+# Generate random values
+t_rand = np.random.triangular(0, b, 2*b, size=5000)
+t_array, t_bins, t_patches = plt.hist(t_rand, num_bins, normed=1, facecolor='blue', alpha=0.5)
+x = mlab.normpdf(t_bins, b, t_sd)
+plt.plot(t_bins, x, 'r--')
+plt.title('Triangular Distribution')
+plt.xlabel('Probability')
+plt.ylabel('Value')
+t_plot_url = py.plotly.plot_mpl(triangle_fig, filename='histogram_triangle_1')
+
+
+with open('gauss_values_test.csv', 'w', newline='') as file:
     writer = csv.writer(file)
     writer.writerow([i for i in range(-4, 5)])
-    writer.writerow(ranges)
-    writer.writerow([])
-    writer.writerow(['-4 to -3', '-3 to -2', '-2 to -1', '-1 to 0', '0 to 1', '1 to 2', '2 to 3', '3 to 4'])
-    writer.writerow(get_probability(g_rand, ranges))
-
-plot_url = py.plotly.plot_mpl(fig, filename='histogram_gauss')
+    writer.writerow(g_ranges)
+    writer.writerow(['Gaussian Distribution'])
+    writer.writerow(['{:4f} to {:4f}'.format(value, g_ranges[index + 1])
+                     for index, value in enumerate(g_ranges[:len(g_ranges) - 1])])
+    writer.writerow(get_probability(g_rand, g_ranges))
+    writer.writerow(['Triangular Distribution'])
+    writer.writerow(['{} to {}'.format(value, t_ranges[index + 1])
+                     for index, value in enumerate(t_ranges[:len(t_ranges) - 1])])
+    writer.writerow(get_probability(t_rand, t_ranges))
